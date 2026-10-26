@@ -1,122 +1,130 @@
 # overleaf-mcp
 
-An MCP server that lets an AI agent read and edit Overleaf LaTeX projects safely while
-coauthors are working in them.
+Let an AI assistant work on your Overleaf papers without stepping on your coauthors.
 
-- Parses LaTeX into addressable units (sections, environments, paragraphs) with stable IDs
-  and content hashes.
-- Refuses edits made against stale content.
-- Sends edits as **tracked changes** by default.
-- Compiles a local mirror before sending and refuses edits that add LaTeX errors.
-- Checks `\ref`/`\label`, citations, and preamble changes; caps how much of a coauthor's text
-  one edit may rewrite.
-- Ships its own manual through the `guide` tool.
+overleaf-mcp is an MCP server. Connect it to Claude (or any MCP client) and the assistant can
+read your Overleaf projects and edit them, while coauthors keep working in the browser.
 
-Spec: the implementation follows the project spec (Phases 0–3). Protocol notes are in
-[docs/PROTOCOL.md](docs/PROTOCOL.md); deviations and open items in
-[docs/DECISIONS.md](docs/DECISIONS.md).
+## What your coauthors see
 
-## Status
+- **Every edit is a tracked change.** Coauthors accept or reject the assistant's work in
+  Overleaf's review panel, like any other suggestion.
+- **Small, targeted edits.** The assistant changes the words you asked about, not whole
+  paragraphs. It can't rewrite more than a quarter of anyone's paragraph unless you ask for a
+  rewrite.
+- **No collisions.** If someone changed a passage after the assistant read it, the edit is
+  refused, and the assistant re-reads before trying again. People typing elsewhere in the
+  same file are unaffected.
+- **It won't break the build.** Each edit is compiled first; an edit that would add a LaTeX
+  error is refused.
+- **References stay intact.** It won't add a `\ref` to a label that doesn't exist, or remove
+  a label something still refers to. Citations missing from your `.bib` are flagged to you.
+- **Comments are respected.** The assistant can read review comments and reply in threads.
+  It resolves threads or accepts changes only when you ask it to in chat.
 
-| Phase | State |
-|---|---|
-| 0 Protocol spike | Done. `docs/PROTOCOL.md` from Overleaf's source, verified live on Community Edition and overleaf.com (tracked change via `meta.tc`, comment, live coauthor edits). |
-| 1 Read path | Done. Real-time adapter, outline, IDs, hashes, all `read` kinds, `guide`. |
-| 2 Write path | Done. `update`, full pipeline, diff budget, checks, compile gate, audit log, all guide topics. |
-| 3 Batch, comments, bib | Done. Overleaf compile parity check not implemented (optional). |
-| 4 Git adapter | Not started. |
+## What you need
 
-Tests run against an in-memory backend and a fake Socket.IO 0.9 Overleaf server. Opt-in
-suites run real `latexmk` in Docker and a live Overleaf Community Edition instance
-(`test/ce.test.ts`). On overleaf.com only the Phase 0 spike has been run; the Phase 2/3 acceptance list has not.
+- **Node.js 20 or newer.**
+- **Docker**, to check that edits compile. The first check downloads a TeX Live image
+  (about 3 GB) matching your project's TeX Live version. Without Docker, edits still work,
+  but the assistant will tell you they weren't compile-checked.
+- **An Overleaf account.** On overleaf.com, tracked changes may need a paid plan.
+  Self-hosted Overleaf Community Edition doesn't show tracked changes, so there the assistant
+  will ask before making untracked edits.
 
-## Requirements
-
-- Node 20+
-- Docker, for the compile gate (TeX Live images: `texlive/texlive:TL<year>-historic`, about
-  3 GB each, pulled on first compile). Without Docker, edits still go through with a
-  `compile_skipped` warning.
-- `pdftoppm` (poppler) on the host for page images; otherwise the TeX Live image's copy is used.
-
-## Setup
+## Install
 
 ```bash
+gh repo clone NHagar/overleaf-mcp
+cd overleaf-mcp
 npm install
 npm run build
 ```
 
-Give the server your Overleaf session cookie. In the browser, open Overleaf, open developer
-tools → Application → Cookies, and copy the value of `overleaf_session2` (overleaf.com) or
-`overleaf.sid` (Community Edition / Server Pro).
+## Connect your Overleaf account
+
+The server signs in with your browser's Overleaf session cookie. It never asks for your
+password.
+
+1. Sign in at [overleaf.com](https://www.overleaf.com).
+2. Open your browser's developer tools and find the cookies for `www.overleaf.com`:
+   Chrome or Edge: **Application → Cookies**; Firefox or Safari: **Storage → Cookies**.
+3. Copy the value of `overleaf_session2` (it starts with `s%3A`).
+4. Save it where only you can read it:
 
 ```bash
-mkdir -p ~/.overleaf-mcp && umask 077 && pbpaste > ~/.overleaf-mcp/cookie
+mkdir -p ~/.overleaf-mcp && (umask 077 && pbpaste > ~/.overleaf-mcp/cookie)
 ```
 
-The file must be mode 600. Or set `OVERLEAF_COOKIE` in the environment. The server never logs
-it. When it expires, tools return `auth_expired`; paste a fresh one.
+The cookie works like a password: anyone who has it can use your Overleaf account. Don't
+share it or commit it. It stops working when you sign out of Overleaf or the session
+expires; the assistant will tell you, and you repeat the steps above.
 
-Optional config at `~/.overleaf-mcp/config.jsonc` (or `OVERLEAF_MCP_CONFIG`):
+## Add it to Claude
 
-```jsonc
-{
-  "backend": "realtime",
-  "baseUrl": "https://www.overleaf.com",
-  "auth": { "cookieFile": "~/.overleaf-mcp/cookie" },
-  "denylist": [],                         // project IDs the server must never touch
-  "diffBudget": { "threshold": 0.25 },
-  "compile": {
-    "enabled": true,
-    "images": { "2025": "texlive/texlive:TL2025-historic" },
-    "defaultImage": "texlive/texlive:latest",
-    "timeoutSeconds": 120,
-    "mirrorDir": "~/.overleaf-mcp/mirrors"
-  },
-  "auditLog": "~/.overleaf-mcp/audit.jsonl"
-}
-```
-
-Register with an MCP client, e.g. Claude Code:
+Claude Code:
 
 ```bash
 claude mcp add overleaf -- node /path/to/overleaf-mcp/dist/server.js
 ```
 
-## Tools
+Claude Desktop, or another MCP client: add a server that runs
+`node /path/to/overleaf-mcp/dist/server.js`.
 
-| Tool | Purpose |
-|---|---|
-| `guide` | The manual. Agents should read `topic.index` first. |
-| `read` | `projects`, `outline`, `unit`, `search`, `changes` (since a version), `bib` |
-| `update` | Ordered ops on one file: `insert`, `replace`, `delete`, `move`, by quoted text, unit ID, or line range |
-| `batch` | Edits across files; checked together, reverted together on a send failure |
-| `compile` | Compile the mirror; new errors/warnings and page images for named units |
-| `bib` | Add an entry in key order; check keys |
-| `comments` | List, create, reply; resolve and accept/reject only with `askedInChat: true` |
+Then just ask:
 
-## Phase 0 spike
+- "List my Overleaf projects."
+- "In my CHI paper, tighten the second paragraph of the introduction."
+- "Add a sentence after Figure 2 explaining the pipeline, and cite Smith 2020."
+- "What did my coauthors change since we last talked?"
+- "Show me the open review comments on the Methods section and draft replies."
 
-Run this against a scratch project you own. It inserts one tracked sentence and one comment,
-then prints edits you make in the browser for 60 seconds, and records the wire traffic to
-`spike-capture.jsonl`:
+The assistant reports anything it was warned about, such as an unknown citation or an edit
+that couldn't be compile-checked.
 
-```bash
-OVERLEAF_COOKIE='overleaf_session2=…' npx tsx scripts/phase0-spike.ts <projectId> --yes
+## Settings
+
+Everything works without configuration. To change defaults, create
+`~/.overleaf-mcp/config.jsonc`:
+
+```jsonc
+{
+  // Projects the assistant must never open (IDs from the project's Overleaf URL).
+  "denylist": ["<project id>"],
+
+  // How much of an existing paragraph one edit may rewrite (0.25 = 25%).
+  "diffBudget": { "threshold": 0.25 },
+
+  // Self-hosted Overleaf: point at your server, and save the overleaf.sid cookie instead.
+  "baseUrl": "https://www.overleaf.com",
+
+  "compile": {
+    "enabled": true,          // set false to skip compile checks
+    "timeoutSeconds": 120
+  }
+}
 ```
 
-Then check the browser's review panel. If the sentence is not shown as a tracked change,
-stop: decision D2 depends on per-update tracking.
+You can also set the cookie with the `OVERLEAF_COOKIE` environment variable instead of the
+file.
 
-## Development
+The server keeps a local copy of each opened project in `~/.overleaf-mcp/mirrors` for
+compiling. It logs each edit, with at most a short snippet of text, to `~/.overleaf-mcp/audit.jsonl`.
 
-```bash
-npm test                                   # unit + fake-server tests
-npx tsc -p tsconfig.test.json              # typecheck src, tests and scripts
-DOCKER_TESTS=1 npx vitest run test/docker.test.ts   # real latexmk
-CE_URL=http://localhost:8090 CE_COOKIE_FILE=… CE_PROJECT=… npx vitest run test/ce.test.ts  # live CE
-npx tsx scripts/golden.ts                  # regenerate fixture outlines (review the diff)
-```
+## Good to know
 
-Layout follows the spec: `src/adapters` (backend interface, real-time and in-memory
-backends), `src/model` (parser, IDs, hashes), `src/edit` (ops, pipeline, budget),
-`src/checks`, `src/compile`, `src/feed`, `src/audit`, `src/guide/topics`, `src/tools`.
+- **Numbers from scripts.** Files that start with
+  `% generated-by: <script> from <data>` are never edited; the assistant will tell you
+  which script to rerun instead. Keep computed values in a generated `numbers.tex` and the
+  assistant will use its macros rather than typing figures.
+- **Packages and macros.** The assistant asks before adding or removing `\usepackage` lines
+  or macro definitions.
+- **Some newer Overleaf projects** use a document format the assistant can read but not yet
+  edit. It will say so if it hits one.
+- **It only edits.** It can't share projects, change settings, create or delete projects, or
+  touch your account.
+
+## For developers
+
+Run the tests with `npm test`. How the server talks to Overleaf is documented in
+[docs/PROTOCOL.md](docs/PROTOCOL.md); design choices are in [docs/DECISIONS.md](docs/DECISIONS.md).
