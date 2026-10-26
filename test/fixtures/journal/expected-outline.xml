@@ -1,0 +1,14 @@
+<project id='journal' ver='0' root='main.tex' compiler='pdflatex' texlive='2025'>
+  <file path='main.tex' ver='0' h='bfabdbaf' parse='fallback'>
+    <paragraph id='main.tex/¶1' h='4d59ed57' lines='1-6'/>
+    <paragraph id='main.tex/¶2' h='d2106a0d' lines='8-9'/>
+    <paragraph id='main.tex/¶3' h='4a604d53' lines='11-12'/>
+    <paragraph id='main.tex/¶4' h='23248df3' lines='14-14'/>
+    <paragraph id='main.tex/¶5' h='cd321764' lines='16-18'/>
+    <paragraph id='main.tex/¶6' h='dd38acfb' lines='20-20'/>
+    <paragraph id='main.tex/¶7' h='74ce278b' lines='22-24'/>
+    <paragraph id='main.tex/¶8' h='7153ed1e' lines='26-26'/>
+    <paragraph id='main.tex/¶9' h='d07e64c0' lines='28-28'/>
+    <paragraph id='main.tex/¶10' h='2dc670e7' lines='30-30'/>
+  </file>
+</project>

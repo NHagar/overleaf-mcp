@@ -1,0 +1,79 @@
+\documentclass[11pt]{article}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{natbib}
+\usepackage{hyperref}
+
+\newcommand{\nArticles}{12{,}000}
+
+\title{Measuring News Coverage}
+\author{A. Author}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We study how outlets cover local news. % TODO tighten
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+Local news matters for civic life \citep{hagar2024}.
+Coverage has declined over two decades.
+
+This paper asks what remains.
+We describe a new corpus in Section~\ref{sec:methods}.
+
+\section{Methods}
+\label{sec:methods}
+
+We collected 12,000 articles from 40 outlets.
+Each article was coded by two annotators \citep{smith2020,doe2019}.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{pipeline.png}
+  \caption{The collection pipeline.}
+  \label{fig:pipeline}
+\end{figure}
+
+Agreement was high, with $\kappa = 0.81$ as in Equation~\eqref{eq:kappa}.
+
+\begin{equation}
+  \kappa = \frac{p_o - p_e}{1 - p_e}
+  \label{eq:kappa}
+\end{equation}
+
+\subsection{Coding scheme}
+
+Codes followed prior work.
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{lr}
+    Outlet & Articles \\
+    A & 300 \\
+  \end{tabular}
+  \caption{Outlets.}
+  \label{tab:outlets}
+\end{table}
+
+\section{Results}
+\label{sec:results}
+
+\begin{itemize}
+  \item Coverage fell.
+  \item Opinion rose.
+\end{itemize}
+
+\begin{verbatim}
+\section{Not a section}
+\begin{figure}
+\end{verbatim}
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\end{document}

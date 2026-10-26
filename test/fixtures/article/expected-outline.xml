@@ -1,0 +1,27 @@
+<project id='article' ver='0' root='main.tex' compiler='pdflatex' texlive='2025'>
+  <file path='main.tex' ver='0' h='4c2ac852'>
+    <preamble id='main.tex/preamble' h='e825a12f' lines='1-12'/>
+    <paragraph id='main.tex/¶1' h='66cd7825' lines='14-14'/>
+    <env id='main.tex/env1' name='abstract' h='d6784842' lines='16-18'/>
+    <section id='sec:intro' title='Introduction' h='c3d3cd7a' lines='20-27' path='main.tex/§1'>
+      <paragraph id='main.tex/§1/¶1' h='2b043b38' lines='23-24'/>
+      <paragraph id='main.tex/§1/¶2' h='bf40338c' lines='26-27'/>
+    </section>
+    <section id='sec:methods' title='Methods' h='b8a34666' lines='29-61' path='main.tex/§2'>
+      <paragraph id='main.tex/§2/¶1' h='bcdc9a0f' lines='32-33'/>
+      <env id='fig:pipeline' name='figure' h='2f81d801' lines='35-40' path='main.tex/§2/env1'/>
+      <paragraph id='main.tex/§2/¶2' h='07018651' lines='42-42'/>
+      <env id='eq:kappa' name='equation' h='6e1df8b0' lines='44-47' path='main.tex/§2/env2'/>
+      <section id='main.tex/§2.1' title='Coding scheme' h='85bcaa90' lines='49-61'>
+        <paragraph id='main.tex/§2.1/¶1' h='ea6ebac5' lines='51-51'/>
+        <env id='tab:outlets' name='table' h='efd5c2ff' lines='53-61' path='main.tex/§2.1/env1'/>
+      </section>
+    </section>
+    <section id='sec:results' title='Results' h='4df317ac' lines='63-77' path='main.tex/§3'>
+      <env id='main.tex/§3/env1' name='itemize' h='a182d450' lines='66-69'/>
+      <env id='main.tex/§3/env2' name='verbatim' h='868dd212' lines='71-74'/>
+      <paragraph id='main.tex/§3/¶1' h='a312daa3' lines='76-77'/>
+    </section>
+  </file>
+  <doc path='refs.bib' ver='0'/>
+</project>

@@ -1,0 +1,30 @@
+\documentclass[twocolumn]{revtex4-2}
+\makeatletter
+\def\@fnsymbol#1{\ensuremath{\ifcase#1\or *\or \dagger\fi}}
+\makeatother
+\newcommand{\mytitle}[1]{\title{#1}}
+\newenvironment{keypoints}{\begin{itemize}}{\end{itemize}}
+
+\begin{document}
+\mytitle{A Journal Paper}
+
+\section{Introduction}
+\label{sec:intro}
+
+Text with a custom macro \foo{bar}{baz}.
+
+\begin{keypoints}
+  \item one
+\end{keypoints}
+
+\section{Broken}
+
+\begin{figure}
+  \centering
+  An environment someone forgot to close.
+
+\section{After}
+
+More text.
+
+\end{document}

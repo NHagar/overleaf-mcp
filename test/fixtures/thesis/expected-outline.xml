@@ -1,0 +1,33 @@
+<project id='thesis' ver='0' root='main.tex' compiler='pdflatex' texlive='2025'>
+  <file path='main.tex' ver='0' h='0c97644f'>
+    <preamble id='main.tex/preamble' h='acb97551' lines='1-3'/>
+    <paragraph id='main.tex/¶1' h='acf86397' lines='5-5'/>
+    <paragraph id='main.tex/¶2' h='61369cc2' lines='7-8'/>
+    <section id='ch:conclusion' title='Conclusion' h='893271d5' lines='10-14' path='main.tex/§1'>
+      <paragraph id='main.tex/§1/¶1' h='ebb10490' lines='13-14'/>
+    </section>
+  </file>
+  <file path='frontmatter/abstract.tex' included-by='main.tex' ver='0' h='612117bd'>
+    <env id='frontmatter/abstract.tex/env1' name='abstract' h='4fe976bd' lines='1-3'/>
+  </file>
+  <file path='chapters/intro.tex' included-by='main.tex' ver='0' h='c0489cee'>
+    <section id='ch:intro' title='Introduction' h='8b236135' lines='1-9' path='chapters/intro.tex/§1'>
+      <paragraph id='chapters/intro.tex/§1/¶1' h='e2fdc575' lines='4-5'/>
+      <section id='chapters/intro.tex/§1.1' title='Outline' h='494d0c99' lines='7-9'>
+        <paragraph id='chapters/intro.tex/§1.1/¶1' h='7d39c34b' lines='9-9'/>
+      </section>
+    </section>
+  </file>
+  <file path='chapters/methods.tex' included-by='main.tex' ver='0' h='53cbc04d'>
+    <section id='ch:methods' title='Methods' h='9ee4e09b' lines='1-17' path='chapters/methods.tex/§1'>
+      <paragraph id='chapters/methods.tex/§1/¶1' h='33c2a9fb' lines='4-4'/>
+      <section id='sec:analysis' title='Analysis' h='35c77983' lines='6-17' path='chapters/methods.tex/§1.1'>
+        <paragraph id='chapters/methods.tex/§1.1/¶1' h='01c70de4' lines='9-9'/>
+        <env id='tab:results' name='table' h='d1f1d0ce' lines='11-17' path='chapters/methods.tex/§1.1/env1'/>
+      </section>
+    </section>
+  </file>
+  <file path='chapters/data.tex' included-by='chapters/methods.tex' ver='0' h='8d810bdd'>
+    <paragraph id='chapters/data.tex/¶1' h='1c6a8517' lines='1-2'/>
+  </file>
+</project>

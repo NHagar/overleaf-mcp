@@ -1,0 +1,35 @@
+{
+  "name": "overleaf-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for safe, unit-addressed, tracked-change editing of Overleaf LaTeX projects",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "overleaf-mcp": "dist/server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node scripts/copy-topics.mjs",
+    "start": "node dist/server.js",
+    "dev": "tsx src/server.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "spike": "tsx scripts/phase0-spike.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "fastest-levenshtein": "^1.0.16",
+    "ws": "^8.22.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "@types/ws": "^8.18.2",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  }
+}

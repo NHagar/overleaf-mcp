@@ -1,0 +1,9 @@
+<project id='review' ver='0' root='main.tex' compiler='pdflatex' texlive='2025'>
+  <file path='main.tex' ver='0' h='d26ae89d'>
+    <preamble id='main.tex/preamble' h='582b76ef' lines='1-2'/>
+    <section id='sec:discussion' title='Discussion' h='5a2f41e8' lines='5-11' path='main.tex/§1'>
+      <paragraph id='main.tex/§1/¶1' h='2a4a1be6' lines='8-9'/>
+      <paragraph id='main.tex/§1/¶2' h='d4d2f722' lines='11-11'/>
+    </section>
+  </file>
+</project>

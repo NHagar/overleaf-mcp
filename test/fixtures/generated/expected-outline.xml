@@ -1,0 +1,16 @@
+<project id='generated' ver='0' root='main.tex' compiler='pdflatex' texlive='2025'>
+  <file path='main.tex' ver='0' h='c3d9ea32'>
+    <preamble id='main.tex/preamble' h='5a200b7a' lines='1-3'/>
+    <section id='sec:data' title='Data' h='74dfe179' lines='6-11' path='main.tex/§1'>
+      <paragraph id='main.tex/§1/¶1' h='063cf723' lines='9-9'/>
+      <paragraph id='main.tex/§1/¶2' h='574c455d' lines='11-11'/>
+    </section>
+  </file>
+  <file path='numbers.tex' included-by='main.tex' ver='0' h='7b45081c'>
+    <paragraph id='numbers.tex/¶1' h='5fe8de47' lines='1-3'/>
+  </file>
+  <file path='tables/outlets.tex' included-by='main.tex' ver='0' h='66e20d1a'>
+    <paragraph id='tables/outlets.tex/¶1' h='d0d269a2' lines='1-1'/>
+    <env id='tab:outlets' name='table' h='86dfb67f' lines='2-8' path='tables/outlets.tex/env1'/>
+  </file>
+</project>
