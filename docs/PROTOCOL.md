@@ -31,11 +31,14 @@ Phase 0 spike on a scratch project owned by a premium account:
 | Comment: `POST /project/:id/thread/:id/messages`, then `{c, p, t}` op | ✓ server broadcast `new-comment(threadId, message)` |
 | Ack frames | `6:::2` (no `+`, no data), then `otUpdateApplied {v, doc}` |
 | Browser edits received live | ✓ one `otUpdateApplied` per typing burst, ~0.5 s apart |
-| `meta` on incoming updates | `source`, `ts`, `user_id` only: **no `tc`, even for tracked edits** |
+| `meta` on incoming untracked updates | `source`, `ts`, `user_id` (no `tc`) |
+| Untracked browser edit typed inside our tracked insert | Splits our change: the first part keeps its id, the remainder gets a new id (from the browser update's seed) but keeps our `user_id` and `ts` |
 
-The last row matters: a coauthor's tracked edit arrives looking untracked. Its tracked-change
-range only appears in the doc's ranges, so the adapter re-joins the doc to refresh ranges after
-any remote update.
+The split matters for receipts: after a coauthor types inside an agent insert, some of that
+insert is tracked under an id the receipt doesn't list. Group changes by `user_id` and `ts`,
+not by id prefix. Whether a coauthor's *tracked* edit carries `meta.tc` on the broadcast is
+not yet observed (**VERIFY**); the adapter does not depend on it, since it re-joins the doc to
+refresh ranges after any remote update.
 
 ### Live results (Community Edition)
 
@@ -189,7 +192,7 @@ The schema is `z.strictObject`: unknown fields reject the update and **disconnec
 
 ## 6. Incoming edits
 
-`otUpdateApplied` with `{doc, op:[…], v, meta:{source, user_id, ts}}`, broadcast to
+`otUpdateApplied` with `{doc, op:[…], v, meta:{source, user_id, ts, tc?}}`, broadcast to
 the whole project room; filter by `doc`. `meta.source` is the sender's `publicId`
 (ours are the ack-only form). Apply when `update.v === local.version`, then `version++`.
 `dup: true` updates are skipped. If `update.v > local.version` there is a gap: rejoin with

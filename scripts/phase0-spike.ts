@@ -89,7 +89,10 @@ async function main() {
   project.onChange((c) => console.log(`  ${new Date().toISOString()} ${c.source} ${c.path} v${c.version} by ${c.userIds.join(',') || '?'}`));
   await new Promise((r) => setTimeout(r, watchSeconds * 1000));
   const final = await project.readDoc(path);
-  console.log(`final version ${final.version}; tracked changes now: ${final.ranges.changes.map((c) => `${c.id}:${c.kind}`).join(' ')}`);
+  // Show text and timestamp: an untracked edit typed inside our tracked insert splits it, and
+  // the split-off piece gets a new id but keeps our timestamp.
+  console.log(`final version ${final.version}; tracked changes now:`);
+  for (const c of final.ranges.changes) console.log(`  ${c.id} ${c.kind} at ${c.pos} by ${c.userId} ${c.ts}: ${JSON.stringify(c.text)}`);
 
   await project.close();
   console.log(`\nWire capture: ${CAPTURE}. Check the browser: the sentence should show as a tracked insertion with the comment in the review panel.`);
