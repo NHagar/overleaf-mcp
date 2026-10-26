@@ -1,5 +1,7 @@
 # overleaf-mcp
 
+⚠️❗Experimental prototype! Use at your own risk! ⚠️❗
+
 Let an AI assistant work on your Overleaf papers without stepping on your coauthors.
 
 overleaf-mcp is an MCP server. Connect it to Claude (or any MCP client) and the assistant can
