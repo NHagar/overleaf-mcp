@@ -20,7 +20,7 @@ Spec: the implementation follows the project spec (Phases 0–3). Protocol notes
 
 | Phase | State |
 |---|---|
-| 0 Protocol spike | `docs/PROTOCOL.md` from Overleaf's source, verified live on Community Edition (tracked change via `meta.tc` confirmed). **Not yet run against overleaf.com.** |
+| 0 Protocol spike | Done. `docs/PROTOCOL.md` from Overleaf's source, verified live on Community Edition and overleaf.com (tracked change via `meta.tc`, comment, live coauthor edits). |
 | 1 Read path | Done. Real-time adapter, outline, IDs, hashes, all `read` kinds, `guide`. |
 | 2 Write path | Done. `update`, full pipeline, diff budget, checks, compile gate, audit log, all guide topics. |
 | 3 Batch, comments, bib | Done. Overleaf compile parity check not implemented (optional). |
@@ -28,7 +28,7 @@ Spec: the implementation follows the project spec (Phases 0–3). Protocol notes
 
 Tests run against an in-memory backend and a fake Socket.IO 0.9 Overleaf server. Opt-in
 suites run real `latexmk` in Docker and a live Overleaf Community Edition instance
-(`test/ce.test.ts`). overleaf.com has not been tested.
+(`test/ce.test.ts`). On overleaf.com only the Phase 0 spike has been run; the Phase 2/3 acceptance list has not.
 
 ## Requirements
 

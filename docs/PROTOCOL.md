@@ -1,7 +1,7 @@
 # Overleaf real-time protocol notes (Phase 0)
 
 Status: **derived from source; verified live against Overleaf Community Edition
-(`sharelatex/sharelatex:latest`, 2026-10-26); overleaf.com not yet verified.**
+(`sharelatex/sharelatex:latest`) and overleaf.com, 2026-10-26.**
 
 Sources read (shallow clone of `github.com/overleaf/overleaf` main, October 2026):
 
@@ -14,12 +14,30 @@ Sources read (shallow clone of `github.com/overleaf/overleaf` main, October 2026
 - `services/web/frontend/js/features/source-editor/extensions/changes/reject-changes.ts`
 - Reference client `github.com/mei28/nvim-overleaf` (`denops/overleaf/protocol/*`, `auth/*`, `document/document.ts`)
 
-Examples marked **(CE live)** were captured with `scripts/phase0-spike.ts` against a local
-CE instance. Other examples are reconstructed from source. Anything marked **VERIFY** has
-not been seen on the wire yet; the spike records traffic to `spike-capture.jsonl` and
-should be run against overleaf.com next.
+Examples marked **(live)** were captured with `scripts/phase0-spike.ts`, which records
+traffic to `spike-capture.jsonl`. Other examples are reconstructed from source. Anything
+still marked **VERIFY** has not been seen on the wire.
 
-### Live results (CE)
+### Live results (overleaf.com)
+
+Phase 0 spike on a scratch project owned by a premium account:
+
+| Check | Result |
+|---|---|
+| Cookie `overleaf_session2`, CSRF from `/project`, GCLB affinity cookie | ✓ |
+| `POST /api/project` listing (`id`, `name`, `lastUpdated`, `accessLevel`) | ✓ |
+| `joinProjectResponse` (`protocolVersion: 2`) | ✓ `features.trackChanges: true`, `trackChangesVisible: true`, `imageName: "texlive-full:2026.1"` |
+| Tracked insert via `meta.tc` | ✓ change id = `tc` + `000001` |
+| Comment: `POST /project/:id/thread/:id/messages`, then `{c, p, t}` op | ✓ server broadcast `new-comment(threadId, message)` |
+| Ack frames | `6:::2` (no `+`, no data), then `otUpdateApplied {v, doc}` |
+| Browser edits received live | ✓ one `otUpdateApplied` per typing burst, ~0.5 s apart |
+| `meta` on incoming updates | `source`, `ts`, `user_id` only: **no `tc`, even for tracked edits** |
+
+The last row matters: a coauthor's tracked edit arrives looking untracked. Its tracked-change
+range only appears in the doc's ranges, so the adapter re-joins the doc to refresh ranges after
+any remote update.
+
+### Live results (Community Edition)
 
 | Check | Result |
 |---|---|
@@ -70,7 +88,7 @@ Overleaf still runs **Socket.IO 0.9** (protocol v1), not Engine.IO. Current npm
   trashed already removed. No `lastUpdated`.
 - `POST /api/project` (CSRF) with `{"page":{"size":200},"sort":{"by":"lastUpdated","order":"desc"}}`
   → `{totalSize, projects:[{id, name, lastUpdated, accessLevel, archived, trashed, owner,…}]}`.
-  We use this one and fall back to `/user/projects`. **VERIFY** field names on overleaf.com.
+  We use this one and fall back to `/user/projects`. Field names confirmed live on overleaf.com.
 
 ## 3. Join a project
 
@@ -171,7 +189,7 @@ The schema is `z.strictObject`: unknown fields reject the update and **disconnec
 
 ## 6. Incoming edits
 
-`otUpdateApplied` with `{doc, op:[…], v, meta:{source, user_id, ts, tc?}}`, broadcast to
+`otUpdateApplied` with `{doc, op:[…], v, meta:{source, user_id, ts}}`, broadcast to
 the whole project room; filter by `doc`. `meta.source` is the sender's `publicId`
 (ours are the ack-only form). Apply when `update.v === local.version`, then `version++`.
 `dup: true` updates are skipped. If `update.v > local.version` there is a gap: rejoin with
@@ -194,9 +212,9 @@ need `readAndWrite`). `document-updater`'s `RangesManager` sets
 - Availability: `project.features.trackChanges` (owner's plan) **and**
   `features.trackChangesVisible` (whether the server has the review UI). On CE (live):
   `trackChanges: true, trackChangesVisible: false` — the server stores tracked changes but
-  the browser never shows them, so coauthors couldn't review them. On overleaf.com, track
-  changes needs a premium owner plan (**VERIFY**). We refuse `tracking_unavailable` unless both
-  are true.
+  the browser never shows them, so coauthors couldn't review them. On overleaf.com (live,
+  premium owner) both are true; free plans are **VERIFY**. We refuse `tracking_unavailable`
+  unless both are true.
 - Accept: `POST /project/:pid/doc/:docId/changes/accept` `{"change_ids":[…]}` (CSRF).
   Not in CE's router (Server Pro / overleaf.com module).
 - Reject (text docs): client-side. Sort changes by position descending; for a tracked
@@ -218,7 +236,8 @@ Anchors live in doc ranges; messages live in the chat service.
 - Resolve: `POST /project/:pid/doc/:docId/thread/:threadId/resolve`.
 - Reopen / delete: `…/reopen`, `DELETE /project/:pid/doc/:docId/thread/:threadId`.
 - Broadcasts: `new-comment(threadId, message)`, `resolve-thread(threadId, user)`.
-- Not in CE's router. **VERIFY** on overleaf.com.
+- Not in CE's router (live: 404). On overleaf.com (live) create works and broadcasts
+  `new-comment`; resolve and accept are not yet exercised (**VERIFY**).
 
 ## 9. Binary files and the file tree
 
@@ -252,16 +271,17 @@ check; the gate compiles locally.
   rejoin with `-1` and treat as a full replacement (the change log records it as an external change).
 - Gap during a session: `otUpdateApplied.v > local.version` → same catch-up path.
 
-## 12. CE vs overleaf.com differences (from source; **VERIFY live**)
+## 12. CE vs overleaf.com differences (live unless noted)
 
 | Area | CE | overleaf.com |
 |---|---|---|
 | Cookie name | `overleaf.sid` (configurable) | `overleaf_session2` |
-| GCLB affinity cookie | not needed | needed |
-| Tracked changes UI | hidden (`trackChangesAvailable:false`) | premium plans |
-| `/threads`, `/changes/accept`, thread resolve | not routed | available |
-| `imageName` | absent unless sandboxed compiles | present |
-| history-ot docs | possible after migration | rolling out |
+| GCLB affinity cookie | not needed | set and used |
+| Tracked changes UI | hidden (`trackChangesVisible: false`) | visible on premium (free plans unverified) |
+| Thread messages | not routed (404) | works |
+| `/changes/accept`, thread resolve | not routed (source) | not yet exercised |
+| `imageName` | absent | `texlive-full:2026.1` |
+| history-ot docs | possible after migration (source) | not seen; test doc was `sharejs-text-ot` |
 
 ## 13. Terms of service
 

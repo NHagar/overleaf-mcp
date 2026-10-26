@@ -3,7 +3,7 @@
 Decisions made while implementing the spec, where the spec left room or where reality
 differed. Fixed decisions D1–D6 are unchanged.
 
-## Phase 0 findings (from source; verified live on CE, overleaf.com pending)
+## Phase 0 findings (from source; verified live on CE and overleaf.com)
 
 - **Tracked changes are per update** (`meta.tc`, 18 hex chars). real-time checks only
   permissions; document-updater tracks iff `meta.tc` is set. D2 is feasible. See PROTOCOL.md §7.
@@ -77,7 +77,7 @@ mid-compile.
 
 - **Terms of service.** Not reviewed. Overleaf's terms should be checked for automated clients
   that act through a user's session cookie before wider use.
-- **Live verification.** Done against CE (`test/ce.test.ts`). Still needed on overleaf.com:
-  the Phase 0 spike (tracked change and comment visible in the review panel), PROTOCOL.md
-  items marked VERIFY, and the Phase 2/3 acceptance list.
+- **Live verification.** Done against CE (`test/ce.test.ts`) and the Phase 0 spike on
+  overleaf.com. Still needed on overleaf.com: PROTOCOL.md items marked VERIFY (free-plan
+  tracking, resolve, accept) and the Phase 2/3 acceptance list.
 - **Phase 4** (Git adapter) is not implemented; `"backend": "git"` exits with a message.
